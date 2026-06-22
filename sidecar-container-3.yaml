@@ -1,0 +1,16 @@
+# Sidecar container example
+
+apiVersion : v1
+kind: Pod
+metadata:
+  name: sidecar-container-demo
+spec:
+  containers :
+    - name : tomcat-container
+      image: vishymails/tomcatimage:1.0
+
+    - name: sidecar-container
+      image: busybox
+      command: ["sh", "-c", "echo Hello from the sidecar container && sleep 3600"]
+
+      
