@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config1
+data :
+  APP_NAME: "MyApp_Kubernetes"
+  ENVIRONMENT: "Production"
+  PORT: "8080"
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config2
+
+data :
+  db_url : "jdbc:mysql://localhost:3306/mydb"
+  db_host : "localhost"
+  db_port : "3306"
+
+
+  service-details : |
+    name: "MyService"
+    version: "1.0.0"
+    description: "This is a sample service configuration."
+
+  css-properties : |
+    body {
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      color: #333333;
+    }
+
+---
+
+apiVersion : v1
+kind : Pod
+metadata :
+  name : my-config-pod1
+spec :
+  containers :
+    - name : my-container1
+      image : busybox
+      command : ["sh", "-c", "echo $APP_NAME && echo $ENVIRONMENT && echo $PORT && sleep 3600"]
+      envFrom :
+        - configMapRef :
+            name : my-config1
+
+---
+
+apiVersion : v1
+kind : Pod
+metadata :
+  name : my-config-pod2
+spec :
+  containers :
+    - name : my-container2
+      image : busybox
+      command : ["sh", "-c", "echo $APP_NAME && echo $ENVIRONMENT && echo $PORT && sleep 3600"]
+      env :
+        - name : APP_NAME
+          valueFrom :
+            configMapKeyRef :
+              name : my-config1
+              key : APP_NAME
+        - name : ENVIRONMENT
+          valueFrom :
+            configMapKeyRef :
+              name : my-config1
+              key : ENVIRONMENT
+        - name : PORT
+          valueFrom :
+            configMapKeyRef :
+              name : my-config1
+              key : PORT
+
+---
+
+
+apiVersion : v1
+kind : Pod
+metadata :
+  name : my-config-pod3
+  labels :
+    app : my-config-pod3
+spec :
+  containers :
+    - name : my-container3
+      image : redis 
+      volumeMounts :
+        - name : config-volume
+          mountPath : /etc/config
+
+
+  volumes : 
+    - name : config-volume
+      configMap :
+        name : my-config2
+
+---
+
+apiVersion : v1
+kind : Pod
+metadata :
+  name : my-config-pod4
+spec :
+  containers :
+    - name : my-container4
+      image : nginx:latest
+      volumeMounts :
+        - name : config-volume
+          mountPath : /etc/config
+
+
+  volumes :
+    - name : config-volume
+      configMap :
+        name : my-config-map1
+        items :
+          - key : application1.properties
+            path : application1.properties
+          
+          - key : application2.properties
+            path : application2.properties
+---
+
