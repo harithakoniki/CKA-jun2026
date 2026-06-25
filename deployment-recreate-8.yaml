@@ -1,0 +1,26 @@
+apiVersion : apps/v1
+kind : Deployment
+metadata:
+ name: tomcat-deploy1
+ labels:
+  app: tomcat-app1
+
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: tomcat-app1
+  strategy :
+    type : Recreate
+  template:
+    metadata:
+      labels:
+        app: tomcat-app1
+    spec:
+      containers:
+        - name: tomcat-container
+          image: vishymails/tomcatimage:1.0
+          ports:
+            - containerPort: 8080
+
+            
